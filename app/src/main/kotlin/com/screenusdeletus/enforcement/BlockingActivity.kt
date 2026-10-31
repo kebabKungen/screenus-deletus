@@ -55,6 +55,7 @@ import com.screenusdeletus.ui.components.BreathingCircle
 import com.screenusdeletus.ui.components.EmergencyUnlockFlow
 import com.screenusdeletus.ui.components.Eyebrow
 import com.screenusdeletus.ui.components.LogoMark
+import com.screenusdeletus.ui.components.ValueSlider
 import com.screenusdeletus.ui.theme.ScreenusDeletusTheme
 import com.screenusdeletus.util.Time
 import kotlinx.coroutines.delay
@@ -290,12 +291,5 @@ private fun BlockScreen(
 }
 
 @Composable
-private fun LabeledSlider(label: String, value: Float, onChange: (Float) -> Unit) {
-    Column {
-        Row {
-            Text(label, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
-            Text("${value.toInt()}/10", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Slider(value, onChange, valueRange = 1f..10f, steps = 8)
-    }
-}
+private fun LabeledSlider(label: String, value: Float, onChange: (Float) -> Unit) =
+    ValueSlider(label, "${value.toInt()}/10", value, onChange, 1f..10f)

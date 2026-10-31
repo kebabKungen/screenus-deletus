@@ -1,5 +1,6 @@
 package com.screenusdeletus.ui.screens
 
+import com.screenusdeletus.ui.components.ValueSlider
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -146,23 +147,21 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                 }
                 1 -> {
                     ScreenHeader("About your habits", "Honest answers make better defaults.", eyebrow = "Step 2 of $STEPS")
-                    Text("Roughly how much do you use your phone per day? ${estimate.toInt()}h")
-                    Slider(estimate, { estimate = it }, valueRange = 1f..12f, steps = 10)
-                    Text("Daily goal: ${formatDuration((goal * 3_600_000).toLong())}")
-                    Slider(goal, { goal = it }, valueRange = 0.5f..8f, steps = 14)
-                    Text("Which kinds of apps pull you in?")
+                    ValueSlider("Phone use on a typical day", "${estimate.toInt()}h", estimate, { estimate = it }, 1f..12f)
+                    ValueSlider("Your daily goal", formatDuration((goal * 3_600_000).toLong()), goal, { goal = it }, 0.5f..8f, step = 0.5f)
+                    Text("Which kinds of apps pull you in?", style = MaterialTheme.typography.titleMedium)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         AppCategory.entries.filter { it != AppCategory.OTHER && it != AppCategory.UTILITIES }.forEach { cat ->
                             FilterChip(cat in categories, { categories = categories.toggle(cat) }, { Text(cat.label) })
                         }
                     }
-                    Text("When is it worst?")
+                    Text("When is it worst?", style = MaterialTheme.typography.titleMedium)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("Morning in bed", "Work hours", "Evenings", "Late night", "Weekends").forEach { t ->
                             FilterChip(t in times, { times = times.toggle(t) }, { Text(t) })
                         }
                     }
-                    Text("What would you rather do instead?")
+                    Text("What would you rather do instead?", style = MaterialTheme.typography.titleMedium)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         HabitSuggester.tags.forEach { t ->
                             FilterChip(t in alternatives, { alternatives = alternatives.toggle(t) }, { Text(t) })
@@ -198,8 +197,7 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                 4 -> {
                     ScreenHeader("Your first rule", eyebrow = "Step 5 of $STEPS")
                     Text("Applies to: " + categories.joinToString { it.label }.ifEmpty { "nothing selected — go back and pick categories" })
-                    Text("Daily limit: ${formatDuration((limitMinutes * 60_000).toLong())}")
-                    Slider(limitMinutes, { limitMinutes = it }, valueRange = 0f..180f, steps = 35)
+                    ValueSlider("Daily limit", formatDuration((limitMinutes * 60_000).toLong()), limitMinutes, { limitMinutes = it }, 0f..180f, step = 5f)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Block them 22:00–07:00 too", Modifier.weight(1f))
                         Switch(nightBlock, { nightBlock = it })

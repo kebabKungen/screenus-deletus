@@ -82,3 +82,33 @@ fun PinField(value: String, onValueChange: (String) -> Unit, label: String, modi
         modifier = modifier.fillMaxWidth(),
     )
 }
+
+/**
+ * A labelled slider without tick marks. The value is snapped to [step] and shown prominently on
+ * the right, so the control reads as "question → answer".
+ */
+@Composable
+fun ValueSlider(
+    label: String,
+    valueText: String,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    range: ClosedFloatingPointRange<Float>,
+    step: Float = 1f,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            Text(valueText, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
+        }
+        androidx.compose.material3.Slider(
+            value = value,
+            onValueChange = { v ->
+                val snapped = (Math.round((v - range.start) / step) * step + range.start).coerceIn(range.start, range.endInclusive)
+                onValueChange(snapped)
+            },
+            valueRange = range,
+        )
+    }
+}

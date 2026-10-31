@@ -1,5 +1,6 @@
 package com.screenusdeletus.ui.screens
 
+import com.screenusdeletus.ui.components.ValueSlider
 import com.screenusdeletus.ui.components.ScreenHeader
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,20 +61,15 @@ fun SettingsScreen() {
         message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 
         SectionCard("Daily goal") {
-            Text(formatDuration((goal * 3_600_000).toLong()))
-            Slider(goal, { goal = it }, valueRange = 0.5f..8f, steps = 14)
+            ValueSlider("Screen time per day", formatDuration((goal * 3_600_000).toLong()), goal, { goal = it }, 0.5f..8f, step = 0.5f)
             Button(onClick = { c.profile.dailyGoalMs = (goal * 3_600_000).toLong(); message = "Goal saved" }) { Text("Save goal") }
         }
 
         SectionCard("Emergency unlocks") {
-            Text("Per week: ${maxUnlocks.toInt()}")
-            Slider(maxUnlocks, { maxUnlocks = it }, valueRange = 0f..7f, steps = 6)
-            Text("Cooldown between unlocks: ${cooldownH.toInt()}h")
-            Slider(cooldownH, { cooldownH = it }, valueRange = 0f..24f, steps = 23)
-            Text("Wait before the first unlock: ${waitMin.toInt()} min (doubles each time)")
-            Slider(waitMin, { waitMin = it }, valueRange = 0f..15f, steps = 14)
-            Text("Unlock lasts: ${durationMin.toInt()} min")
-            Slider(durationMin, { durationMin = it }, valueRange = 5f..60f, steps = 10)
+            ValueSlider("Unlocks per week", "${maxUnlocks.toInt()}", maxUnlocks, { maxUnlocks = it }, 0f..7f)
+            ValueSlider("Cooldown between unlocks", "${cooldownH.toInt()}h", cooldownH, { cooldownH = it }, 0f..24f)
+            ValueSlider("Wait before an unlock (doubles each time)", "${waitMin.toInt()} min", waitMin, { waitMin = it }, 0f..15f)
+            ValueSlider("Unlock lasts", "${durationMin.toInt()} min", durationMin, { durationMin = it }, 5f..60f, step = 5f)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Typing challenge", Modifier.weight(1f))
                 Switch(challenge, { challenge = it })
@@ -94,10 +90,9 @@ fun SettingsScreen() {
         }
 
         SectionCard("Delays") {
-            Text("Cooling-off for loosening a rule: ${coolingH.toInt()}h (can only go up)")
-            Slider(coolingH, { coolingH = it.coerceAtLeast(c.rules.weakeningDelayMs / 3_600_000f) }, valueRange = 1f..72f, steps = 70)
-            Text("Wait before a protection pause starts: ${pauseMin.toInt()} min (can only go up)")
-            Slider(pauseMin, { pauseMin = it.coerceAtLeast(c.tamper.disarmDelayMs / 60_000f) }, valueRange = 5f..240f, steps = 46)
+            ValueSlider("Cooling-off before a rule can loosen", "${coolingH.toInt()}h", coolingH, { coolingH = it.coerceAtLeast(c.rules.weakeningDelayMs / 3_600_000f) }, 1f..72f)
+            ValueSlider("Wait before a protection pause", "${pauseMin.toInt()} min", pauseMin, { pauseMin = it.coerceAtLeast(c.tamper.disarmDelayMs / 60_000f) }, 5f..240f, step = 5f)
+            Text("These can only go up.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Button(onClick = {
                 c.rules.setWeakeningDelay((coolingH * 3_600_000).toLong())
                 c.tamper.setDisarmDelay((pauseMin * 60_000).toLong())

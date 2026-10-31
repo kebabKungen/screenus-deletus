@@ -1,5 +1,6 @@
 package com.screenusdeletus.ui.screens
 
+import com.screenusdeletus.ui.components.ValueSlider
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -155,7 +156,7 @@ fun RuleEditorScreen(id: String, onDone: () -> Unit) {
                 Text(if (hasLimit) formatDuration(limitMinutes.toLong() * 60_000).let { if (limitMinutes == 0f) "Always blocked" else it } else "No daily limit", Modifier.weight(1f))
                 Switch(hasLimit, { hasLimit = it })
             }
-            if (hasLimit) Slider(limitMinutes, { limitMinutes = it }, valueRange = 0f..240f, steps = 47)
+            if (hasLimit) ValueSlider("Allowed per day", if (limitMinutes == 0f) "Blocked" else formatDuration(limitMinutes.toLong() * 60_000), limitMinutes, { limitMinutes = it }, 0f..240f, step = 5f)
         }
 
         SectionCard("Focus hours (blocked)", action = { TextButton(onClick = { addingRange = true }) { Text("Add") } }) {
