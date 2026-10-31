@@ -1,5 +1,10 @@
 package com.screenusdeletus.ui.screens
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.GppMaybe
+import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.Icons
+import com.screenusdeletus.ui.components.ScreenHeader
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,8 +53,36 @@ fun SecurityScreen() {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Security", style = MaterialTheme.typography.headlineMedium)
+        ScreenHeader("Security", "Everything that keeps Screenus Deletus honest.")
         val s = status ?: return@Column
+
+        val (panelBg, panelFg) = when (s.level) {
+            ProtectionLevel.NORMAL -> if (s.allProtectionsOn) MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+                else MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
+            ProtectionLevel.RESTRICTED -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
+            ProtectionLevel.LOCKDOWN -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+        }
+        androidx.compose.material3.Surface(shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp), color = panelBg) {
+            Row(Modifier.padding(20.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                androidx.compose.material3.Icon(
+                    if (s.level == ProtectionLevel.NORMAL && s.allProtectionsOn) Icons.Filled.VerifiedUser else Icons.Filled.GppMaybe,
+                    contentDescription = null, tint = panelFg, modifier = Modifier.size(40.dp),
+                )
+                androidx.compose.foundation.layout.Spacer(Modifier.size(16.dp))
+                Column {
+                    Text(
+                        when {
+                            s.level == ProtectionLevel.LOCKDOWN -> "Lockdown"
+                            s.level == ProtectionLevel.RESTRICTED -> "Restricted"
+                            !s.allProtectionsOn -> "Protection incomplete"
+                            else -> "Fully protected"
+                        },
+                        style = MaterialTheme.typography.headlineSmall, color = panelFg,
+                    )
+                    Text("Tamper score ${s.tamperScore} in the last 24 h", style = MaterialTheme.typography.bodyMedium, color = panelFg)
+                }
+            }
+        }
 
         SectionCard("Protection level") {
             Text(

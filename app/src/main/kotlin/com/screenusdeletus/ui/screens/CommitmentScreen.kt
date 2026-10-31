@@ -1,5 +1,6 @@
 package com.screenusdeletus.ui.screens
 
+import com.screenusdeletus.ui.components.ScreenHeader
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,7 +42,7 @@ fun CommitmentScreen() {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Commitment pledge", style = MaterialTheme.typography.headlineMedium)
+        ScreenHeader("Commitment pledge")
         Text(
             "Pledge an amount to a charity. Every slip (going over a limit, pushing past a pause, an emergency unlock) " +
                 "adds a penalty that grows within the week. Screenus Deletus never moves money: it keeps the ledger and " +

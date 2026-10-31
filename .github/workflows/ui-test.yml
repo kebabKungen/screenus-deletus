@@ -8,6 +8,8 @@ jobs:
   ui-tour:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -47,3 +49,21 @@ jobs:
             logcat.txt
             instrument.txt
           if-no-files-found: warn
+
+      - name: Commit screenshots to the branch
+        if: always() && github.event_name != 'pull_request'
+        run: |
+          shopt -s nullglob
+          files=(screenshots/*.png)
+          [ ${#files[@]} -eq 0 ] && exit 0
+          rm -rf docs/screenshots && mkdir -p docs/screenshots
+          cp "${files[@]}" docs/screenshots/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A docs/screenshots
+          git diff --cached --quiet && exit 0
+          git commit -m "Update UI screenshots from emulator run [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && break
+            sleep 5
+          done

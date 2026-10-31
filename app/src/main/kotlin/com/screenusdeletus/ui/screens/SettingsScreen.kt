@@ -1,5 +1,6 @@
 package com.screenusdeletus.ui.screens
 
+import com.screenusdeletus.ui.components.ScreenHeader
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,7 +56,7 @@ fun SettingsScreen() {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Settings", style = MaterialTheme.typography.headlineMedium)
+        ScreenHeader("Settings")
         message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
 
         SectionCard("Daily goal") {

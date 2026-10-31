@@ -9,7 +9,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.PhonelinkLock
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.screenusdeletus.ui.components.LogoMark
+import com.screenusdeletus.ui.components.ScreenHeader
+import com.screenusdeletus.ui.components.StepDots
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +36,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -103,24 +120,24 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
             Modifier.safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            LinearProgressIndicator(progress = { (step + 1f) / STEPS }, modifier = Modifier.fillMaxWidth())
+            StepDots(STEPS, step)
             when (step) {
                 0 -> {
-                    Text("Screenus Deletus", style = MaterialTheme.typography.headlineLarge)
-                    Text("A screen time tool for people who know every way around a screen time tool.")
+                    Spacer(Modifier.height(12.dp))
+                    LogoMark(size = 88.dp)
+                    Text("Screenus Deletus", style = MaterialTheme.typography.displaySmall)
                     Text(
-                        "You set limits while you're thinking clearly. Screenus Deletus holds you to them later: " +
-                            "interstitials, hard blocks, cooling-off periods on loosening a rule, emergency unlocks that " +
-                            "cost something, and an optional guardian who hears about it.",
-                    )
-                    Text(
-                        "It can't make itself impossible to remove — no app can on a phone you own. Instead, every way " +
-                            "of switching it off is slow, logged and visible to your guardian. Everything stays on this device.",
+                        "A screen time tool for people who know every way around a screen time tool.",
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    FeatureRow(Icons.Filled.Timer, "Friction, not walls", "Pauses that grow each time, hard blocks when you need them, and 24 h before any rule can be loosened.")
+                    FeatureRow(Icons.Filled.Shield, "Costly to bypass", "Turning protections off triggers lockdown, breaks your streak and is logged.")
+                    FeatureRow(Icons.Filled.People, "Someone in your corner", "An optional guardian approves unlocks and hears about tamper attempts.")
+                    FeatureRow(Icons.Filled.PhonelinkLock, "Private by design", "Everything stays encrypted on this device. No accounts, no servers.")
                 }
                 1 -> {
-                    Text("About your habits", style = MaterialTheme.typography.headlineSmall)
+                    ScreenHeader("About your habits", "Honest answers make better defaults.", eyebrow = "Step 2 of $STEPS")
                     Text("Roughly how much do you use your phone per day? ${estimate.toInt()}h")
                     Slider(estimate, { estimate = it }, valueRange = 1f..12f, steps = 10)
                     Text("Daily goal: ${formatDuration((goal * 3_600_000).toLong())}")
@@ -146,8 +163,7 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                     OutlinedTextField(motivation, { motivation = it }, Modifier.fillMaxWidth(), label = { Text("Why does this matter to you?") }, minLines = 2)
                 }
                 2 -> {
-                    Text("Create a PIN", style = MaterialTheme.typography.headlineSmall)
-                    Text("Protects your settings. Pick something you won't type on autopilot.")
+                    ScreenHeader("Create a PIN", "Protects your settings. Pick something you won't type on autopilot.", eyebrow = "Step 3 of $STEPS")
                     PinField(pin, { pin = it }, "PIN (at least ${AuthManager.MIN_PIN_LENGTH} digits)")
                     PinField(pin2, { pin2 = it }, "Repeat PIN", isError = pin2.isNotEmpty() && pin2 != pin)
                     if (c.auth.canUseBiometrics(activity)) {
@@ -159,8 +175,7 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                 }
                 3 -> {
                     refresh // read so the rows recompose on resume
-                    Text("Permissions", style = MaterialTheme.typography.headlineSmall)
-                    Text("Usage access and the accessibility service are required. The rest make bypassing harder.")
+                    ScreenHeader("Permissions", "Usage access and the accessibility service are required. The rest make bypassing harder.", eyebrow = "Step 4 of $STEPS")
                     StatusRow("Usage access", c.usage.hasUsageAccess(), "Measures time per app") { Permissions.usageAccess(context) }
                     StatusRow("Accessibility service", c.tamper.isAccessibilityEnabled(), "Notices app switches instantly. Reads only the app's package name.") { Permissions.accessibility(context) }
                     StatusRow("Device admin", c.tamper.isDeviceAdminActive(), "Blocks one-tap uninstalling") { Permissions.deviceAdmin(context) }
@@ -173,7 +188,7 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                     StatusRow("Ignore battery optimisation", c.tamper.isIgnoringBatteryOptimizations(), "Keeps protection running") { Permissions.batteryOptimizations(context) }
                 }
                 4 -> {
-                    Text("Your first rule", style = MaterialTheme.typography.headlineSmall)
+                    ScreenHeader("Your first rule", eyebrow = "Step 5 of $STEPS")
                     Text("Applies to: " + categories.joinToString { it.label }.ifEmpty { "nothing selected — go back and pick categories" })
                     Text("Daily limit: ${formatDuration((limitMinutes * 60_000).toLong())}")
                     Slider(limitMinutes, { limitMinutes = it }, valueRange = 0f..180f, steps = 35)
@@ -188,8 +203,12 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                     )
                 }
                 5 -> {
-                    Text("You're set", style = MaterialTheme.typography.headlineSmall)
-                    Text("Next steps worth doing: add a guardian (More → Guardian) and, if money motivates you, a commitment pledge.")
+                    Spacer(Modifier.height(12.dp))
+                    LogoMark(size = 72.dp)
+                    ScreenHeader("You're set", "Your future self says thanks.", eyebrow = "Step 6 of $STEPS")
+                    FeatureRow(Icons.Filled.People, "Add a guardian", "More → Guardian. Accountability works better with a real person.")
+                    FeatureRow(Icons.Filled.Savings, "Make a pledge", "More → Commitment pledge, if money motivates you.")
+                    FeatureRow(Icons.Filled.Insights, "Check Insights in a few days", "Your triggers and heaviest hours show up there.")
                 }
             }
 
@@ -202,10 +221,12 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                 }
                 else -> true
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (step > 0) OutlinedButton(onClick = { step-- }) { Text("Back") }
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                if (step > 0) OutlinedButton(onClick = { step-- }, shape = RoundedCornerShape(18.dp), modifier = Modifier.height(52.dp)) { Text("Back") }
                 Button(
                     enabled = canContinue,
+                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier.weight(1f).height(52.dp),
                     onClick = {
                         when (step) {
                             2 -> {
@@ -247,6 +268,20 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                     },
                 ) { Text(if (step == STEPS - 1) "Start" else "Continue") }
             }
+        }
+    }
+}
+
+@Composable
+private fun FeatureRow(icon: ImageVector, title: String, text: String) {
+    Row(verticalAlignment = Alignment.Top) {
+        Box(Modifier.size(40.dp).background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(22.dp))
+        }
+        Spacer(Modifier.width(14.dp))
+        Column {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

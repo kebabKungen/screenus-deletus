@@ -9,7 +9,14 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HourglassBottom
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,8 +25,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -36,15 +42,19 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.screenusdeletus.ScreenusDeletusApp
 import com.screenusdeletus.core.HabitSuggester
 import com.screenusdeletus.core.ReflectionPrompts
 import com.screenusdeletus.core.TriggerLog
+import com.screenusdeletus.ui.components.BreathingCircle
 import com.screenusdeletus.ui.components.EmergencyUnlockFlow
+import com.screenusdeletus.ui.components.Eyebrow
+import com.screenusdeletus.ui.components.LogoMark
 import com.screenusdeletus.ui.theme.ScreenusDeletusTheme
 import com.screenusdeletus.util.Time
 import kotlinx.coroutines.delay
@@ -92,7 +102,7 @@ class BlockingActivity : ComponentActivity() {
         val token = ++renderToken
 
         setContent {
-            ScreenusDeletusTheme {
+            ScreenusDeletusTheme(darkTheme = true) {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     key(token) { BlockScreen(
                         appLabel = label,
@@ -173,6 +183,8 @@ private fun BlockScreen(
     var stress by remember { mutableFloatStateOf(5f) }
     var remaining by remember { mutableIntStateOf(delaySeconds) }
     var showUnlock by remember { mutableStateOf(false) }
+    val interstitial = mode == BlockingActivity.MODE_INTERSTITIAL
+    val accent = if (interstitial) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
 
     LaunchedEffect(delaySeconds) {
         while (remaining > 0) {
@@ -182,35 +194,56 @@ private fun BlockScreen(
     }
 
     Column(
-        Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (showUnlock) {
+            Spacer(Modifier.height(24.dp))
             EmergencyUnlockFlow { granted -> if (granted) onUnlocked() else showUnlock = false }
             return@Column
         }
 
-        Spacer(Modifier.height(24.dp))
-        Text(
-            if (mode == BlockingActivity.MODE_INTERSTITIAL) "Pause before $appLabel" else "$appLabel is blocked",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Text(reason, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (lockdown) {
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
-                Text(
-                    "Lockdown mode is on because tampering was detected. Every rule is a hard block for now.",
-                    Modifier.padding(12.dp),
-                    color = MaterialTheme.colorScheme.onErrorContainer,
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            LogoMark(size = 28.dp)
+            Spacer(Modifier.width(8.dp))
+            Text("Screenus Deletus", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Eyebrow(if (interstitial) "Pause first" else "Blocked", color = accent)
+            Text(appLabel, style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center)
+            Text(reason, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+        }
+
+        BreathingCircle(color = accent, size = 220.dp) {
+            if (interstitial && remaining > 0) {
+                Text("$remaining", style = MaterialTheme.typography.displayMedium, color = accent)
+            } else {
+                Icon(
+                    if (interstitial) Icons.Filled.HourglassBottom else Icons.Filled.Lock,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(36.dp),
                 )
             }
         }
 
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (lockdown) {
+            Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.errorContainer) {
+                Text(
+                    "Lockdown is on because tampering was detected. Every rule is a hard block for now.",
+                    Modifier.padding(14.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
+
+        Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
+            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(prompt, style = MaterialTheme.typography.titleMedium)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     ReflectionPrompts.commonTriggers.forEach { t ->
                         FilterChip(
                             selected = trigger == t,
@@ -222,32 +255,47 @@ private fun BlockScreen(
                         )
                     }
                 }
-                Text("Mood: ${mood.toInt()}/10")
-                Slider(mood, { mood = it; onReflection(trigger, it.toInt(), stress.toInt()) }, valueRange = 1f..10f, steps = 8)
-                Text("Stress: ${stress.toInt()}/10")
-                Slider(stress, { stress = it; onReflection(trigger, mood.toInt(), it.toInt()) }, valueRange = 1f..10f, steps = 8)
+                LabeledSlider("Mood", mood) { mood = it; onReflection(trigger, it.toInt(), stress.toInt()) }
+                LabeledSlider("Stress", stress) { stress = it; onReflection(trigger, mood.toInt(), it.toInt()) }
             }
         }
 
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Try this instead", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                Text("${suggestion.title} · ${suggestion.minutes} min", style = MaterialTheme.typography.titleMedium)
-                Text(suggestion.description)
+        Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+            Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Eyebrow("Try this instead", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f))
+                    Text("${suggestion.title} · ${suggestion.minutes} min", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text(suggestion.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
                 suggestion.suggestedPackage?.takeIf(isInstalled)?.let { p ->
-                    TextButton(onClick = { onOpenApp(p) }) { Text("Open it") }
+                    TextButton(onClick = { onOpenApp(p) }) { Text("Open") }
                 }
             }
         }
 
-        Button(onClick = onHome, modifier = Modifier.fillMaxWidth()) { Text("Return to home") }
+        Button(
+            onClick = onHome,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(18.dp),
+        ) { Text("Return to home", style = MaterialTheme.typography.titleMedium) }
 
-        if (mode == BlockingActivity.MODE_INTERSTITIAL) {
-            OutlinedButton(onClick = onProceed, enabled = remaining <= 0, modifier = Modifier.fillMaxWidth()) {
+        if (interstitial) {
+            OutlinedButton(onClick = onProceed, enabled = remaining <= 0, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(18.dp)) {
                 Text(if (remaining > 0) "Continue in ${remaining}s" else "Continue anyway (counts as a slip)")
             }
         } else {
-            OutlinedButton(onClick = { showUnlock = true }, modifier = Modifier.fillMaxWidth()) { Text("Request emergency unlock") }
+            TextButton(onClick = { showUnlock = true }) { Text("Request emergency unlock") }
         }
+    }
+}
+
+@Composable
+private fun LabeledSlider(label: String, value: Float, onChange: (Float) -> Unit) {
+    Column {
+        Row {
+            Text(label, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+            Text("${value.toInt()}/10", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Slider(value, onChange, valueRange = 1f..10f, steps = 8)
     }
 }

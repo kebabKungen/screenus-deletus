@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Phone outline struck through by one deliberate line. Safe zone: centre 66dp of 108dp. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Shield -->
     <path
-        android:fillColor="#FFF2F5F3"
-        android:pathData="M54,26 L76,34 L76,52 C76,66 66,77 54,82 C42,77 32,66 32,52 L32,34 Z" />
-    <!-- Clock face -->
+        android:strokeColor="#FFF2FBF6"
+        android:strokeWidth="4"
+        android:fillColor="#00000000"
+        android:pathData="M45,34 h18 a4,4 0 0 1 4,4 v32 a4,4 0 0 1 -4,4 h-18 a4,4 0 0 1 -4,-4 v-32 a4,4 0 0 1 4,-4 z" />
     <path
-        android:fillColor="#FF1F4D43"
-        android:pathData="M54,40 a14,14 0 1,0 0.01,0 Z" />
-    <!-- Clock hands -->
-    <path
-        android:strokeColor="#FFF2F5F3"
+        android:strokeColor="#FFF2FBF6"
         android:strokeWidth="3"
         android:strokeLineCap="round"
-        android:pathData="M54,46 L54,54 L60,58" />
+        android:pathData="M51,68 h6" />
+    <path
+        android:strokeColor="#FFFFC98A"
+        android:strokeWidth="5.5"
+        android:strokeLineCap="round"
+        android:pathData="M37,72 L71,36" />
 </vector>

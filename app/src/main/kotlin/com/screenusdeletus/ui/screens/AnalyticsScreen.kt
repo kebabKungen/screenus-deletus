@@ -1,5 +1,6 @@
 package com.screenusdeletus.ui.screens
 
+import com.screenusdeletus.ui.components.ScreenHeader
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +38,7 @@ fun AnalyticsScreen() {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Insights", style = MaterialTheme.typography.headlineMedium)
+        ScreenHeader("Insights", "Patterns from your own data. Nothing leaves this phone.")
         val d = data
         if (d == null) {
             CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
@@ -46,7 +47,7 @@ fun AnalyticsScreen() {
 
         SectionCard("What stands out") {
             if (d.insights.isEmpty()) Text("Not enough data yet — check back after a few days.")
-            d.insights.forEach { Text("• $it") }
+            d.insights.forEach { InsightRow(it) }
         }
 
         SectionCard("Last 7 days") {

@@ -1,5 +1,10 @@
 package com.screenusdeletus.ui.screens
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.Bedtime
+import com.screenusdeletus.ui.components.ScreenHeader
+import com.screenusdeletus.ui.components.MeterBar
+import com.screenusdeletus.ui.components.Badge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,23 +58,38 @@ fun RulesScreen(onEdit: (String) -> Unit) {
             contentPadding = PaddingValues(16.dp, 16.dp, 16.dp, 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item { Text("Rules", style = MaterialTheme.typography.headlineMedium) }
+            item { ScreenHeader("Rules", "Limits and focus hours you set with a clear head.") }
             if (rules.isEmpty()) item { Text("No rules yet. Add one to start.") }
             items(rules, key = { it.rule.id }) { stored ->
                 val r = stored.rule
                 SectionCard(r.name, modifier = Modifier.clickable { onEdit(r.id) }, action = {
-                    AssistChip(onClick = { onEdit(r.id) }, label = { Text(if (r.enabled) r.escalationLevel.label() else "Off") })
+                    val (bg, fg) = when {
+                        !r.enabled -> MaterialTheme.colorScheme.surfaceContainerHighest to MaterialTheme.colorScheme.onSurfaceVariant
+                        r.escalationLevel == EscalationLevel.HARD -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+                        r.escalationLevel == EscalationLevel.MEDIUM -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
+                        else -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
+                    }
+                    Badge(if (r.enabled) r.escalationLevel.label() else "Off", bg, fg)
                 }) {
                     Text(targetsSummary(r, c.catalog::label), style = MaterialTheme.typography.bodySmall)
                     val used = usage[r.id] ?: 0L
                     if (r.dailyLimitMs >= 0) {
-                        Text("${formatDuration(used)} of ${formatDuration(r.dailyLimitMs)} today")
-                        LinearProgressIndicator(
-                            progress = { if (r.dailyLimitMs == 0L) 1f else (used.toFloat() / r.dailyLimitMs).coerceIn(0f, 1f) },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(formatDuration(used), style = MaterialTheme.typography.headlineSmall)
+                            Text(
+                                if (r.dailyLimitMs == 0L) "  · always blocked" else "  of ${formatDuration(r.dailyLimitMs)} today",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        MeterBar(if (r.dailyLimitMs == 0L) 1f else used.toFloat() / r.dailyLimitMs)
                     }
-                    if (r.blockedHours.isNotEmpty()) Text("Blocked " + r.blockedHours.joinToString { it.format() })
+                    if (r.blockedHours.isNotEmpty()) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.Bedtime, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("  Focus hours " + r.blockedHours.joinToString { it.format() }, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
                     if (!stored.integrityOk) Text("Integrity check failed — enforced as a hard block", color = MaterialTheme.colorScheme.error)
                     if (stored.pendingAppliesAt != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {

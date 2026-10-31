@@ -1,5 +1,6 @@
 package com.screenusdeletus.ui.screens
 
+import com.screenusdeletus.ui.components.ScreenHeader
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -77,7 +78,7 @@ fun GuardianScreen() {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Guardian", style = MaterialTheme.typography.headlineMedium)
+        ScreenHeader("Guardian")
         Text(
             "A friend, family member, partner or therapist who approves emergency unlocks and early rule changes with " +
                 "their own PIN, and hears about tamper attempts. Hand them the phone to set their PIN.",

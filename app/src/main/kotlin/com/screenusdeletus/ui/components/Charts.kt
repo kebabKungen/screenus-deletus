@@ -1,5 +1,8 @@
 package com.screenusdeletus.ui.components
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +19,7 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -34,25 +38,39 @@ import com.screenusdeletus.ui.theme.ChartColors
 
 /** Progress ring for today's usage against the goal. Turns to the error colour once over. */
 @Composable
-fun UsageRing(usedMs: Long, goalMs: Long, modifier: Modifier = Modifier, size: Dp = 180.dp) {
+fun UsageRing(
+    usedMs: Long,
+    goalMs: Long,
+    modifier: Modifier = Modifier,
+    size: Dp = 180.dp,
+    track: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    progress: Color = MaterialTheme.colorScheme.primary,
+    over: Color = MaterialTheme.colorScheme.error,
+    text: Color = MaterialTheme.colorScheme.onSurface,
+    subText: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    strokeWidth: Dp = 14.dp,
+    showLabel: Boolean = true,
+) {
     val fraction = if (goalMs > 0) usedMs.toFloat() / goalMs else 0f
-    val track = MaterialTheme.colorScheme.surfaceVariant
-    val color = if (fraction > 1f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+    val animated by animateFloatAsState(fraction.coerceIn(0f, 1f), tween(900, easing = FastOutSlowInEasing), label = "ring")
+    val color = if (fraction > 1f) over else progress
     Box(modifier.size(size), contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(size)) {
-            val stroke = Stroke(width = 16.dp.toPx(), cap = StrokeCap.Round)
+            val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
             val inset = stroke.width / 2
             val arcSize = Size(this.size.width - stroke.width, this.size.height - stroke.width)
             drawArc(track, -90f, 360f, false, Offset(inset, inset), arcSize, style = stroke)
-            drawArc(color, -90f, 360f * fraction.coerceIn(0f, 1f), false, Offset(inset, inset), arcSize, style = stroke)
+            if (animated > 0f) drawArc(color, -90f, 360f * animated, false, Offset(inset, inset), arcSize, style = stroke)
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(formatDuration(usedMs), style = MaterialTheme.typography.headlineMedium)
-            Text(
-                if (goalMs > 0) "of ${formatDuration(goalMs)} goal" else "today",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        if (showLabel) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(formatDuration(usedMs), style = MaterialTheme.typography.headlineMedium, color = text)
+                Text(
+                    if (goalMs > 0) "of ${formatDuration(goalMs)}" else "today",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = subText,
+                )
+            }
         }
     }
 }
