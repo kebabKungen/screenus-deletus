@@ -4,6 +4,10 @@ on:
   push:
   workflow_dispatch:
 
+concurrency:
+  group: ui-tour-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ui-tour:
     runs-on: ubuntu-latest
@@ -56,14 +60,18 @@ jobs:
           shopt -s nullglob
           files=(screenshots/*.png)
           [ ${#files[@]} -eq 0 ] && exit 0
-          rm -rf docs/screenshots && mkdir -p docs/screenshots
-          cp "${files[@]}" docs/screenshots/
+          mkdir -p /tmp/shots && cp "${files[@]}" /tmp/shots/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A docs/screenshots
-          git diff --cached --quiet && exit 0
-          git commit -m "Update UI screenshots from emulator run [skip ci]"
-          for i in 1 2 3; do
-            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && break
+          # Rebuild the commit on the latest branch tip each attempt; screenshots never need merging.
+          for i in 1 2 3 4; do
+            git fetch -q origin "$GITHUB_REF_NAME"
+            git checkout -q -B publish-shots "origin/$GITHUB_REF_NAME"
+            rm -rf docs/screenshots && mkdir -p docs/screenshots && cp /tmp/shots/*.png docs/screenshots/
+            git add -A docs/screenshots
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Update UI screenshots from emulator run [skip ci]"
+            git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
             sleep 5
           done
+          exit 1
