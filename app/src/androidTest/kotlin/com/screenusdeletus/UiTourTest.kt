@@ -2,6 +2,7 @@ package com.screenusdeletus
 
 import android.content.Intent
 import android.graphics.Bitmap
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -59,6 +60,12 @@ class UiTourTest {
         node.performClick()
     }
 
+    private fun waitEnabled(text: String, timeoutMs: Long = 30_000) {
+        rule.waitUntil(timeoutMs) {
+            rule.onAllNodesWithText(text).fetchSemanticsNodes().any { !it.config.contains(SemanticsProperties.Disabled) }
+        }
+    }
+
     @Test
     fun tour() {
         // ---- onboarding ----
@@ -72,7 +79,11 @@ class UiTourTest {
         shot("03_pin")
         click("Continue")
         rule.waitUntilAtLeastOneExists(hasText("Permissions"), 30_000)
-        shot("04_permissions")
+        try {
+            waitEnabled("Continue")
+        } finally {
+            shot("04_permissions")
+        }
         click("Continue")
         shot("05_first_rule")
         click("Continue")

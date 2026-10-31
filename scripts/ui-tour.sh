@@ -15,6 +15,10 @@ adb shell settings put secure accessibility_enabled 1
 adb shell dpm set-active-admin $PKG/com.screenusdeletus.security.GuardDeviceAdminReceiver || true
 adb shell dumpsys deviceidle whitelist +$PKG || true
 adb logcat -c
+echo "===== PERMISSION STATE ====="
+adb shell appops get $PKG GET_USAGE_STATS || true
+adb shell settings get secure enabled_accessibility_services || true
+adb shell dumpsys accessibility | grep -i -m5 "screenusdeletus" || true
 
 run_tour() {
   adb shell am instrument -w -e class com.screenusdeletus.UiTourTest $PKG.test/androidx.test.runner.AndroidJUnitRunner | tee -a instrument.txt
