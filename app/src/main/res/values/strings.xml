@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TimeGuard</string>
+    <string name="accessibility_service_label">TimeGuard app monitor</string>
+    <string name="accessibility_service_description">TimeGuard watches which app is in the foreground so it can enforce the screen time limits you set. It only reads the package name of the foreground app. No data leaves your device.</string>
+    <string name="device_admin_description">Prevents TimeGuard from being uninstalled on impulse. Deactivating it is logged and triggers lockdown mode.</string>
+    <string name="device_admin_disable_warning">Deactivating TimeGuard is a tamper event. Your rules will switch to lockdown and your guardian (if set) will be told. Use TimeGuard\'s \"Pause protection\" if you want to turn it off without a penalty.</string>
+</resources>

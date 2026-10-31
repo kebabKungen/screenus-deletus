@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tg_background">#FFF7F9FC</color>
+    <color name="tg_block_background">#FF0B0F14</color>
+    <color name="tg_primary">#FF2F6B5E</color>
+    <color name="ic_launcher_background">#FF1F4D43</color>
+</resources>
