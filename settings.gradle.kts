@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TimeGuard"
+rootProject.name = "ScreenusDeletus"
 include(":core", ":app")

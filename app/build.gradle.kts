@@ -22,14 +22,14 @@ val hasReleaseSigning = releaseStoreFile?.exists() == true && signingValue("KEYS
 
 // SHA-256 of the release signing certificate (hex, no colons). When set, the app refuses to
 // trust itself if it was re-signed. When empty, the certificate seen on first launch is pinned.
-val expectedCertSha256 = signingValue("TIMEGUARD_CERT_SHA256") ?: ""
+val expectedCertSha256 = signingValue("SCREENUS_CERT_SHA256") ?: ""
 
 android {
-    namespace = "com.timeguard"
+    namespace = "com.screenusdeletus"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.timeguard"
+        applicationId = "com.screenusdeletus"
         minSdk = 29
         targetSdk = 35
         versionCode = 1

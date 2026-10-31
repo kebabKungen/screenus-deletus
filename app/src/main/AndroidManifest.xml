@@ -57,7 +57,7 @@
     </queries>
 
     <application
-        android:name=".TimeGuardApp"
+        android:name=".ScreenusDeletusApp"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -65,7 +65,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TimeGuard"
+        android:theme="@style/Theme.ScreenusDeletus"
         tools:targetApi="35">
 
         <activity
@@ -84,9 +84,9 @@
             android:exported="false"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
-            android:taskAffinity="com.timeguard.blocking"
+            android:taskAffinity="com.screenusdeletus.blocking"
             android:screenOrientation="unspecified"
-            android:theme="@style/Theme.TimeGuard.Blocking"
+            android:theme="@style/Theme.ScreenusDeletus.Blocking"
             android:windowSoftInputMode="adjustResize" />
 
         <service
@@ -112,7 +112,7 @@
         </service>
 
         <receiver
-            android:name=".security.TimeGuardDeviceAdminReceiver"
+            android:name=".security.GuardDeviceAdminReceiver"
             android:description="@string/device_admin_description"
             android:exported="true"
             android:label="@string/app_name"
