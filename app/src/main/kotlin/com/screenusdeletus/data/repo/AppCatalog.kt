@@ -48,7 +48,7 @@ class AppCatalog(
     }
 
     fun label(pkg: String): String = labelCache.getOrPut(pkg) {
-        runCatching { pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString() }.getOrDefault(pkg)
+        runCatching { pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString() }.getOrNull() ?: prettyName(pkg)
     }
 
     fun icon(pkg: String): Drawable? = runCatching { pm.getApplicationIcon(pkg) }.getOrNull()
@@ -85,6 +85,13 @@ class AppCatalog(
     }
 
     companion object {
+        /** "com.google.android.youtube" → "Youtube" when the real label isn't visible to us. */
+        fun prettyName(pkg: String): String {
+            val skip = setOf("com", "org", "net", "android", "app", "apps", "google", "mobile", "client")
+            val part = pkg.split('.').lastOrNull { it.lowercase() !in skip && it.length > 1 } ?: pkg
+            return part.replaceFirstChar { it.uppercase() }
+        }
+
         /** Apps whose category metadata is missing or unhelpful. */
         val KNOWN: Map<String, AppCategory> = buildMap {
             listOf(

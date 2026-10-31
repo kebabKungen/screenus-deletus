@@ -123,7 +123,10 @@ fun DashboardScreen(onNavigate: (String) -> Unit) {
                     else -> "Protected" to extra.onHero.copy(alpha = 0.16f)
                 }
                 Badge(label, bg, extra.onHero)
-                if (d != null) Badge("${d.streak.currentStreak}-day streak", extra.onHero.copy(alpha = 0.16f), extra.onHero)
+                if (d != null) Badge(
+                    if (d.streak.currentStreak == 0) "Streak starts today" else "${d.streak.currentStreak}-day streak",
+                    extra.onHero.copy(alpha = 0.16f), extra.onHero,
+                )
                 if (vm.unlockedUntil > Time.now()) Badge("Unlocked to ${Time.formatClock(vm.unlockedUntil)}", MaterialTheme.colorScheme.tertiary, extra.onHero)
             }
         }
@@ -164,8 +167,8 @@ fun DashboardScreen(onNavigate: (String) -> Unit) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             StatTile(Icons.Filled.LocalFireDepartment, "${d.streak.currentStreak} days", "Best ${d.streak.longestStreak}", Modifier.weight(1f), extra.warning)
-            StatTile(Icons.Filled.Verified, "${d.complianceScore.toInt()}%", "30-day compliance", Modifier.weight(1f), extra.success)
-            StatTile(Icons.Filled.LockOpen, "${d.unlocksThisWeek}/${d.maxUnlocksPerWeek}", "Unlocks used", Modifier.weight(1f), MaterialTheme.colorScheme.error)
+            StatTile(Icons.Filled.Verified, "${d.complianceScore.toInt()}%", "Compliance", Modifier.weight(1f), extra.success)
+            StatTile(Icons.Filled.LockOpen, "${d.unlocksThisWeek}/${d.maxUnlocksPerWeek}", "Unlocks", Modifier.weight(1f), MaterialTheme.colorScheme.error)
         }
 
         SectionCard("Top apps today") {

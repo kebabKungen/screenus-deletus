@@ -60,9 +60,10 @@ import com.screenusdeletus.ui.theme.Brand
 fun LogoMark(
     modifier: Modifier = Modifier,
     size: Dp = 72.dp,
-    container: Color = MaterialTheme.colorScheme.primary,
-    ink: Color = MaterialTheme.colorScheme.onPrimary,
-    accent: Color = MaterialTheme.colorScheme.tertiaryContainer,
+    // Fixed brand colours (same as the launcher icon) so the mark looks identical in both themes.
+    container: Color = Color(0xFF1F5C4D),
+    ink: Color = Color(0xFFF2FBF6),
+    accent: Color = Color(0xFFFFC98A),
 ) {
     Canvas(modifier.size(size).semantics { contentDescription = "Screenus Deletus logo" }) {
         val s = this.size.minDimension

@@ -60,7 +60,7 @@ fun UsageRing(
             val inset = stroke.width / 2
             val arcSize = Size(this.size.width - stroke.width, this.size.height - stroke.width)
             drawArc(track, -90f, 360f, false, Offset(inset, inset), arcSize, style = stroke)
-            if (animated > 0f) drawArc(color, -90f, 360f * animated, false, Offset(inset, inset), arcSize, style = stroke)
+            if (animated > 0.01f) drawArc(color, -90f, 360f * animated, false, Offset(inset, inset), arcSize, style = stroke)
         }
         if (showLabel) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {

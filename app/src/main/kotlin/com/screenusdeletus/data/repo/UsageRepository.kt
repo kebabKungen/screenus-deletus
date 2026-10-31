@@ -72,7 +72,11 @@ class UsageRepository(
             hourOf = Time::hourOf,
             hourStart = Time::hourStart,
             ignoredPackages = ignored,
-        )
+        ).let { s ->
+            // Our own process (and its test runner in debug builds) is never "screen time".
+            val own = context.packageName.removeSuffix(".debug")
+            s.copy(perPackageMs = s.perPackageMs.filterKeys { !it.startsWith(own) })
+        }
     }
 
     suspend fun usageForRule(rule: ScreenTimeRule, summary: UsageSummary? = null): Long {

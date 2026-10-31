@@ -65,8 +65,10 @@ class UiTourTest {
 
     private fun click(text: String) {
         dismissSystemDialogs()
-        rule.waitUntilAtLeastOneExists(hasText(text), 10_000)
-        val node = rule.onAllNodesWithText(text)[0]
+        // Search the unmerged tree: some containers (e.g. extended FABs) hide child text from
+        // the merged tree. Clicking the child dispatches a tap at its centre, which hits the parent.
+        rule.waitUntil(10_000) { rule.onAllNodesWithText(text, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }
+        val node = rule.onAllNodesWithText(text, useUnmergedTree = true)[0]
         try {
             node.performScrollTo()
         } catch (e: AssertionError) {
