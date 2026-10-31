@@ -6,6 +6,12 @@ PKG=com.screenusdeletus.debug
 APK=app/build/outputs/apk/debug/app-debug.apk
 TEST_APK=app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 
+# A cold-booted emulator often shows "System UI / Launcher isn't responding"; let it settle and
+# dismiss any such dialog so it doesn't cover the screenshots.
+sleep 20
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true
+adb shell input keyevent KEYCODE_HOME || true
+
 adb install -r -g "$APK"
 adb install -r -g "$TEST_APK"
 adb shell appops set $PKG GET_USAGE_STATS allow
@@ -21,6 +27,7 @@ adb shell settings get secure enabled_accessibility_services || true
 adb shell dumpsys accessibility | grep -i -m5 "screenusdeletus" || true
 
 run_tour() {
+  adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true
   adb shell am instrument -w -e class com.screenusdeletus.UiTourTest $PKG.test/androidx.test.runner.AndroidJUnitRunner | tee -a instrument.txt
 }
 

@@ -14,6 +14,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
 import com.screenusdeletus.enforcement.BlockingActivity
 import com.screenusdeletus.ui.MainActivity
 import org.junit.Rule
@@ -42,7 +44,19 @@ class UiTourTest {
         if (night) "dark_" else "light_"
     }
 
+    private val device by lazy { UiDevice.getInstance(instrumentation) }
+
+    /** Emulators on CI sometimes raise "X isn't responding" for system apps; tap Wait. */
+    private fun dismissSystemDialogs() {
+        repeat(3) {
+            val anr = device.findObject(By.textContains("isn't responding")) ?: return
+            (device.findObject(By.text("Wait")) ?: device.findObject(By.text("Close app")))?.click()
+            device.waitForIdle(1_000)
+        }
+    }
+
     private fun shot(name: String) {
+        dismissSystemDialogs()
         rule.waitForIdle()
         Thread.sleep(600)
         val bmp = instrumentation.uiAutomation.takeScreenshot() ?: return
@@ -50,6 +64,7 @@ class UiTourTest {
     }
 
     private fun click(text: String) {
+        dismissSystemDialogs()
         rule.waitUntilAtLeastOneExists(hasText(text), 10_000)
         val node = rule.onAllNodesWithText(text)[0]
         try {

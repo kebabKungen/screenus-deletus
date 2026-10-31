@@ -122,8 +122,18 @@ class TamperMonitor(
         context.getSystemService(DevicePolicyManager::class.java).isAdminActive(adminComponent)
 
     fun isAccessibilityEnabled(): Boolean {
-        val am = context.getSystemService(AccessibilityManager::class.java)
+        if (AppMonitoringService.running) return true
         val ours = ComponentName(context, AppMonitoringService::class.java)
+        // The secure setting is the source of truth for "switched on"; it accepts both the full
+        // and the short (".monitoring.X") component forms.
+        val setting = android.provider.Settings.Secure.getString(
+            context.contentResolver, android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+        ).orEmpty()
+        val listed = setting.split(':').any { entry ->
+            ComponentName.unflattenFromString(entry.trim())?.let { it == ours } == true
+        }
+        if (listed) return true
+        val am = context.getSystemService(AccessibilityManager::class.java)
         return am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK).any {
             it.resolveInfo?.serviceInfo?.let { si -> ComponentName(si.packageName, si.name) } == ours
         }
