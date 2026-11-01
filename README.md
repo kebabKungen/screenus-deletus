@@ -27,7 +27,7 @@ Captured automatically on an Android 14 emulator by the `UI test (emulator)` wor
 | **Psychology** | Reflection prompts and trigger, mood and stress logging on every block; alternative-activity suggestions; streaks; compliance score; insights generated on the device |
 | **Guardian** | A trusted person with their own PIN who approves unlocks and early rule changes. Alerts and weekly reports go out by SMS (optional) or wait in an outbox that you're prompted to send by email |
 | **Commitment pledge** | Pledge an amount to a charity. Slips add penalties that escalate within the week. It's a ledger only: the app never moves money |
-| **Security** | PIN (PBKDF2) and biometric app lock; EncryptedSharedPreferences; SQLCipher-encrypted Room database; Tink HMAC on every rule; R8 obfuscation |
+| **Security** | PIN (PBKDF2, 4–12 digits) and biometric lock on the settings area (stats stay viewable without it); EncryptedSharedPreferences; SQLCipher-encrypted Room database; Tink HMAC on every rule; R8 obfuscation |
 
 ## Limits
 

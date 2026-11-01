@@ -46,7 +46,7 @@ class AuthManager(
         verify(pin, Keys.GUARDIAN_PIN_HASH, Keys.GUARDIAN_PIN_SALT, now)
 
     private fun store(pin: String, hashKey: String, saltKey: String) {
-        require(pin.length >= MIN_PIN_LENGTH) { "PIN must have at least $MIN_PIN_LENGTH digits" }
+        require(pin.length in MIN_PIN_LENGTH..MAX_PIN_LENGTH) { "PIN must have $MIN_PIN_LENGTH–$MAX_PIN_LENGTH digits" }
         val salt = CryptoManager.randomBytes(16)
         prefs.put(saltKey, Base64.encodeToString(salt, Base64.NO_WRAP))
         prefs.put(hashKey, hash(pin, salt))
@@ -112,6 +112,8 @@ class AuthManager(
 
     companion object {
         const val MIN_PIN_LENGTH = 4
+        /** Shared by every PIN entry (setup fields and the keypad) so a PIN can always be re-typed. */
+        const val MAX_PIN_LENGTH = 12
         private const val FREE_ATTEMPTS = 5
         private const val ITERATIONS = 120_000
     }

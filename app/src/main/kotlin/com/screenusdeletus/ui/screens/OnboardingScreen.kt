@@ -77,6 +77,8 @@ import com.screenusdeletus.security.AuthManager
 import com.screenusdeletus.ui.components.PinField
 import com.screenusdeletus.ui.components.StatusRow
 import com.screenusdeletus.util.Permissions
+import com.screenusdeletus.util.rememberDeviceAdminRequest
+import com.screenusdeletus.util.rememberNotificationRequest
 import com.screenusdeletus.util.Time
 import kotlinx.coroutines.launch
 
@@ -122,7 +124,8 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
             refresh++
         }
     }
-    val notifLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { refresh++ }
+    val requestNotifications = rememberNotificationRequest { refresh++ }
+    val requestDeviceAdmin = rememberDeviceAdminRequest { refresh++ }
 
     Surface(Modifier.fillMaxSize()) {
         Column(
@@ -185,12 +188,8 @@ fun OnboardingScreen(activity: FragmentActivity, onFinished: () -> Unit) {
                     ScreenHeader("Permissions", "Usage access and the accessibility service are required. The rest make bypassing harder.", eyebrow = "Step 4 of $STEPS")
                     StatusRow("Usage access", c.usage.hasUsageAccess(), "Measures time per app") { Permissions.usageAccess(context) }
                     StatusRow("Accessibility service", c.tamper.isAccessibilityEnabled(), "Notices app switches instantly. Reads only the app's package name.") { Permissions.accessibility(context) }
-                    StatusRow("Device admin", c.tamper.isDeviceAdminActive(), "Blocks one-tap uninstalling") { Permissions.deviceAdmin(context) }
-                    val notifOk = Build.VERSION.SDK_INT < 33 ||
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
-                    StatusRow("Notifications", notifOk, "Warnings and alerts") {
-                        if (Build.VERSION.SDK_INT >= 33) notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    }
+                    StatusRow("Device admin", c.tamper.isDeviceAdminActive(), "Blocks one-tap uninstalling") { requestDeviceAdmin() }
+                    StatusRow("Notifications", Permissions.notificationsEnabled(context), "Warnings and alerts") { requestNotifications() }
                     StatusRow("Display over other apps", c.tamper.hasOverlayPermission(), "Backup blocking if accessibility is off") { Permissions.overlay(context) }
                     StatusRow("Ignore battery optimisation", c.tamper.isIgnoringBatteryOptimizations(), "Keeps protection running") { Permissions.batteryOptimizations(context) }
                 }

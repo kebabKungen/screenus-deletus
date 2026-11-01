@@ -25,6 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
@@ -35,7 +38,13 @@ import com.screenusdeletus.ui.components.PinPad
 import com.screenusdeletus.util.Time
 
 @Composable
-fun LockScreen(activity: FragmentActivity, onUnlocked: () -> Unit) {
+fun LockScreen(
+    activity: FragmentActivity,
+    fullScreen: Boolean = true,
+    title: String = "Settings are locked",
+    subtitle: String = "Enter your PIN to change rules, unlocks and accountability settings",
+    onUnlocked: () -> Unit,
+) {
     val c = ScreenusDeletusApp.container(LocalContext.current)
     var pin by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
@@ -60,14 +69,17 @@ fun LockScreen(activity: FragmentActivity, onUnlocked: () -> Unit) {
 
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
-            Modifier.safeDrawingPadding().padding(24.dp),
+            (if (fullScreen) Modifier.safeDrawingPadding() else Modifier)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
-            LogoMark(size = 64.dp)
-            Text("Welcome back", style = MaterialTheme.typography.headlineMedium)
+            LogoMark(size = 56.dp)
+            Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
             Text(
-                error ?: "Enter your PIN",
+                error ?: subtitle,
+                textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -205,21 +205,20 @@ fun PinPad(
     pin: String,
     onPinChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    maxLength: Int = 8,
+    maxLength: Int = com.screenusdeletus.security.AuthManager.MAX_PIN_LENGTH,
     error: Boolean = false,
 ) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.height(16.dp)) {
-            val shown = pin.length.coerceAtLeast(4)
-            repeat(shown) { i ->
-                val filled = i < pin.length
+        // One dot per digit typed — no placeholders, so the dots never hint at a PIN length.
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.height(16.dp).semantics { contentDescription = "${pin.length} digits entered" },
+        ) {
+            repeat(pin.length) {
                 Box(
                     Modifier.size(14.dp).clip(CircleShape).background(
-                        when {
-                            error -> MaterialTheme.colorScheme.error
-                            filled -> MaterialTheme.colorScheme.primary
-                            else -> MaterialTheme.colorScheme.outlineVariant
-                        },
+                        if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                     ),
                 )
             }

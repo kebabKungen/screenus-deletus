@@ -73,7 +73,7 @@ fun StatusRow(label: String, ok: Boolean, detail: String? = null, onFix: (() -> 
 fun PinField(value: String, onValueChange: (String) -> Unit, label: String, modifier: Modifier = Modifier, isError: Boolean = false) {
     OutlinedTextField(
         value = value,
-        onValueChange = { v -> onValueChange(v.filter(Char::isDigit).take(12)) },
+        onValueChange = { v -> onValueChange(v.filter(Char::isDigit).take(com.screenusdeletus.security.AuthManager.MAX_PIN_LENGTH)) },
         label = { Text(label) },
         singleLine = true,
         isError = isError,

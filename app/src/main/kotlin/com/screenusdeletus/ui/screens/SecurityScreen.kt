@@ -37,6 +37,8 @@ import com.screenusdeletus.ui.components.PinField
 import com.screenusdeletus.ui.components.SectionCard
 import com.screenusdeletus.ui.components.StatusRow
 import com.screenusdeletus.util.Permissions
+import com.screenusdeletus.util.rememberDeviceAdminRequest
+import com.screenusdeletus.util.rememberNotificationRequest
 import com.screenusdeletus.util.Time
 import kotlinx.coroutines.delay
 
@@ -45,6 +47,8 @@ fun SecurityScreen() {
     val context = LocalContext.current
     val c = ScreenusDeletusApp.container(context)
     val vm: SecurityViewModel = viewModel { SecurityViewModel(c) }
+    val requestDeviceAdmin = rememberDeviceAdminRequest()
+    val requestNotifications = rememberNotificationRequest()
     val status by vm.status.collectAsStateWithLifecycle()
     val events by vm.events.collectAsStateWithLifecycle()
     var now by remember { mutableLongStateOf(Time.now()) }
@@ -100,7 +104,8 @@ fun SecurityScreen() {
         SectionCard("Protections") {
             StatusRow("Usage access", s.usageAccess) { Permissions.usageAccess(context) }
             StatusRow("Accessibility service", s.accessibilityEnabled) { Permissions.accessibility(context) }
-            StatusRow("Device admin", s.deviceAdminActive) { Permissions.deviceAdmin(context) }
+            StatusRow("Device admin", s.deviceAdminActive) { requestDeviceAdmin() }
+            StatusRow("Notifications", Permissions.notificationsEnabled(context), "Limit warnings and alerts") { requestNotifications() }
             StatusRow("Display over other apps", s.overlayPermission, "Backup blocking") { Permissions.overlay(context) }
             StatusRow("Battery optimisation off", s.ignoringBatteryOptimizations, "Keeps monitoring alive") { Permissions.batteryOptimizations(context) }
         }

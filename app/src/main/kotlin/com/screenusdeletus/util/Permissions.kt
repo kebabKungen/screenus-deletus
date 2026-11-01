@@ -15,15 +15,25 @@ object Permissions {
 
     fun accessibility(context: Context) = open(context, Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
 
-    fun deviceAdmin(context: Context) = open(
-        context,
+    /**
+     * The "Activate device admin app" screen finishes immediately if it is started as a new task,
+     * so it must be launched from an activity for a result — see [rememberDeviceAdminRequest].
+     */
+    fun deviceAdminIntent(context: Context): Intent =
         Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
             .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, ComponentName(context, GuardDeviceAdminReceiver::class.java))
             .putExtra(
                 DevicePolicyManager.EXTRA_ADD_EXPLANATION,
                 "Stops Screenus Deletus from being uninstalled on impulse. You can still turn it off — doing so is logged.",
-            ),
+            )
+
+    fun notificationSettings(context: Context) = open(
+        context,
+        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName),
     )
+
+    fun notificationsEnabled(context: Context): Boolean =
+        androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
 
     fun overlay(context: Context) = open(
         context,

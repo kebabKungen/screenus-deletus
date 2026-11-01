@@ -62,7 +62,8 @@ private val tabs = listOf(
 fun AppRoot(activity: FragmentActivity, pendingRoute: String?, onRouteConsumed: () -> Unit) {
     val c = ScreenusDeletusApp.container(LocalContext.current)
     var onboarded by remember { mutableStateOf(c.profile.onboardingComplete) }
-    var locked by rememberSaveable { mutableStateOf(true) }
+    // Stats are always viewable; only the settings area (the More tab) is behind the PIN.
+    var settingsLocked by rememberSaveable { mutableStateOf(true) }
     var stoppedAt by remember { mutableLongStateOf(0L) }
 
     // Re-lock after the app has been in the background for a minute.
@@ -71,7 +72,7 @@ fun AppRoot(activity: FragmentActivity, pendingRoute: String?, onRouteConsumed: 
         val obs = LifecycleEventObserver { _, e ->
             when (e) {
                 Lifecycle.Event.ON_STOP -> stoppedAt = Time.now()
-                Lifecycle.Event.ON_START -> if (stoppedAt > 0 && Time.now() - stoppedAt > RELOCK_MS) locked = true
+                Lifecycle.Event.ON_START -> if (stoppedAt > 0 && Time.now() - stoppedAt > RELOCK_MS) settingsLocked = true
                 else -> Unit
             }
         }
@@ -82,15 +83,26 @@ fun AppRoot(activity: FragmentActivity, pendingRoute: String?, onRouteConsumed: 
     when {
         !onboarded -> OnboardingScreen(activity) {
             onboarded = true
-            locked = false
+            settingsLocked = false
         }
-        locked -> LockScreen(activity) { locked = false }
-        else -> MainNav(pendingRoute, onRouteConsumed)
+        else -> MainNav(activity, settingsLocked, { settingsLocked = false }, pendingRoute, onRouteConsumed)
     }
 }
 
 @Composable
-private fun MainNav(pendingRoute: String?, onRouteConsumed: () -> Unit) {
+private fun MainNav(
+    activity: FragmentActivity,
+    settingsLocked: Boolean,
+    onUnlockSettings: () -> Unit,
+    pendingRoute: String?,
+    onRouteConsumed: () -> Unit,
+) {
+    /** Shows [content] only once the PIN or biometrics have been entered. */
+    @Composable
+    fun Gated(content: @Composable () -> Unit) {
+        if (settingsLocked) LockScreen(activity, fullScreen = false, onUnlocked = onUnlockSettings) else content()
+    }
+
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val current = backStack?.destination?.route
@@ -131,11 +143,11 @@ private fun MainNav(pendingRoute: String?, onRouteConsumed: () -> Unit) {
             }
             composable("insights") { AnalyticsScreen() }
             composable("security") { SecurityScreen() }
-            composable("more") { MoreScreen(onNavigate = { nav.navigate(it) }) }
-            composable("guardian") { GuardianScreen() }
-            composable("commitment") { CommitmentScreen() }
-            composable("settings") { SettingsScreen() }
-            composable("unlock") { UnlockScreen(onDone = { nav.popBackStack() }) }
+            composable("more") { Gated { MoreScreen(onNavigate = { nav.navigate(it) }) } }
+            composable("guardian") { Gated { GuardianScreen() } }
+            composable("commitment") { Gated { CommitmentScreen() } }
+            composable("settings") { Gated { SettingsScreen() } }
+            composable("unlock") { Gated { UnlockScreen(onDone = { nav.popBackStack() }) } }
         }
     }
 }
