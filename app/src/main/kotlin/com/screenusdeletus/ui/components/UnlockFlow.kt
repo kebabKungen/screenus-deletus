@@ -8,6 +8,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -103,12 +106,15 @@ fun EmergencyUnlockFlow(onDone: (granted: Boolean) -> Unit) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         when (val s = step) {
             Step.Reason -> {
-                Text("Emergency unlock", style = MaterialTheme.typography.titleLarge)
+                Eyebrow("Emergency unlock", color = MaterialTheme.colorScheme.error)
+                Text("What's the emergency?", style = MaterialTheme.typography.headlineMedium)
                 Text("Why do you need this right now? Be specific — this is logged and shared with your guardian.")
                 OutlinedTextField(reason, { reason = it }, Modifier.fillMaxWidth(), minLines = 3, label = { Text("Reason") })
                 Text("${reason.trim().length}/$MIN_REASON characters", style = MaterialTheme.typography.bodySmall)
                 Button(
                     enabled = reason.trim().length >= MIN_REASON,
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    shape = RoundedCornerShape(18.dp),
                     onClick = {
                         scope.launch {
                             when (val el = c.unlocks.eligibility(c.guardian.isConfigured, c.tamper.protectionLevel)) {
@@ -118,24 +124,24 @@ fun EmergencyUnlockFlow(onDone: (granted: Boolean) -> Unit) {
                         }
                     },
                 ) { Text("Continue") }
-                OutlinedButton(onClick = { scope.launch { c.unlocks.logAbandoned(reason); onDone(false) } }) { Text("Never mind") }
+                TextButton(onClick = { scope.launch { c.unlocks.logAbandoned(reason); onDone(false) } }, modifier = Modifier.fillMaxWidth()) { Text("Never mind") }
             }
             is Step.Denied -> {
-                Text("Unlock not available", style = MaterialTheme.typography.titleLarge)
+                Text("Unlock not available", style = MaterialTheme.typography.headlineSmall)
                 Text(s.reason)
                 s.retryAt?.let { Text("Available again ${Time.formatDateTime(it)}.") }
                 Button(onClick = { onDone(false) }) { Text("OK") }
             }
             is Step.Waiting -> {
-                Text("Take a moment", style = MaterialTheme.typography.titleLarge)
+                Text("Take a moment", style = MaterialTheme.typography.headlineSmall)
                 Text("Stay on this screen. If you still need the unlock when the timer ends, you can continue. Leaving restarts the wait.")
                 val total = s.eligibility.waitMs.coerceAtLeast(1)
                 LinearProgressIndicator(progress = { 1f - (s.until - now).toFloat() / total }, modifier = Modifier.fillMaxWidth())
-                Text(Time.formatCountdown(s.until - now), style = MaterialTheme.typography.displaySmall)
+                Text(Time.formatCountdown(s.until - now), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.primary)
                 OutlinedButton(onClick = { scope.launch { c.unlocks.logAbandoned(reason); onDone(false) } }) { Text("I don't need it after all") }
             }
             is Step.Challenge -> {
-                Text("Type this exactly", style = MaterialTheme.typography.titleLarge)
+                Text("Type this exactly", style = MaterialTheme.typography.headlineSmall)
                 Text(s.phrase, style = MaterialTheme.typography.bodyLarge)
                 OutlinedTextField(typed, { typed = it; error = null }, Modifier.fillMaxWidth(), isError = error != null,
                     supportingText = { error?.let { Text(it) } })
@@ -145,7 +151,7 @@ fun EmergencyUnlockFlow(onDone: (granted: Boolean) -> Unit) {
             }
             Step.Guardian -> {
                 val name = c.guardian.guardian?.name ?: "your guardian"
-                Text("Guardian approval", style = MaterialTheme.typography.titleLarge)
+                Text("Guardian approval", style = MaterialTheme.typography.headlineSmall)
                 Text("Hand the phone to $name, or call them, to enter their PIN.")
                 PinField(pin, { pin = it; error = null }, "Guardian PIN", isError = error != null)
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -158,7 +164,7 @@ fun EmergencyUnlockFlow(onDone: (granted: Boolean) -> Unit) {
                 }) { Text("Approve") }
             }
             is Step.Granted -> {
-                Text("Unlocked until ${Time.formatClock(s.until)}", style = MaterialTheme.typography.titleLarge)
+                Text("Unlocked until ${Time.formatClock(s.until)}", style = MaterialTheme.typography.headlineSmall)
                 Text("Your rules are back on after that. This unlock was logged.")
                 Button(onClick = { onDone(true) }) { Text("Done") }
             }

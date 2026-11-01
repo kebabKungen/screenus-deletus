@@ -2,6 +2,18 @@
 
 An Android app for reducing screen time, built for people who know every way around a screen time app. You set limits while you're thinking clearly. Screenus Deletus holds you to them later with friction, accountability and costs, and it makes every way of switching it off slow, logged and visible.
 
+## Screenshots
+
+Captured automatically on an Android 14 emulator by the `UI test (emulator)` workflow (`docs/screenshots/`, light and dark).
+
+| Today | Rules | Insights | Security |
+| --- | --- | --- | --- |
+| ![Today](docs/screenshots/light_10_today.png) | ![Rules](docs/screenshots/light_11_rules.png) | ![Insights](docs/screenshots/light_13_insights.png) | ![Security](docs/screenshots/light_14_security.png) |
+
+| Block screen | Pause screen | Onboarding | Dark mode |
+| --- | --- | --- | --- |
+| ![Block](docs/screenshots/light_20_block.png) | ![Pause](docs/screenshots/light_21_interstitial.png) | ![Welcome](docs/screenshots/light_01_welcome.png) | ![Dark](docs/screenshots/dark_10_today.png) |
+
 ## What it does
 
 | Area | Features |
@@ -46,7 +58,7 @@ Requires JDK 17 and the Android SDK (compileSdk 35). minSdk is 29 (Android 10).
 ./gradlew :app:assembleRelease  # app/build/outputs/apk/release/
 ```
 
-GitHub Actions (`.github/workflows/build.yml`) runs the tests and uploads both APKs as the `screenus-deletus-apks` artifact on every push.
+GitHub Actions (`.github/workflows/build.yml`) runs the tests and uploads both APKs as the `screenus-deletus-apks` artifact on every push. `.github/workflows/ui-test.yml` boots an Android 14 emulator, grants the permissions over adb, runs the `UiTourTest` instrumented test through onboarding and every screen in light and dark mode, reports crashes from logcat, and commits the screenshots to `docs/screenshots/`.
 
 ### Release signing
 

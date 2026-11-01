@@ -180,22 +180,22 @@ fun BreathingCircle(modifier: Modifier = Modifier, color: Color, size: Dp = 220.
     // 0..0.5 inhale, 0.5..1 exhale, eased
     val p = if (phase < 0.5f) phase * 2 else (1 - phase) * 2
     val eased = FastOutSlowInEasing.transform(p)
-    Box(modifier.size(size), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.size(size)) {
-            val maxR = this.size.minDimension / 2
-            drawCircle(color.copy(alpha = 0.08f), radius = maxR)
-            drawCircle(color.copy(alpha = 0.14f), radius = maxR * (0.55f + 0.45f * eased))
-            drawCircle(color.copy(alpha = 0.22f), radius = maxR * (0.42f + 0.33f * eased))
-            drawCircle(color.copy(alpha = 0.9f), radius = maxR * 0.34f, style = Stroke(3.dp.toPx()))
-        }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Box(Modifier.size(size), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.size(size)) {
+                val maxR = this.size.minDimension / 2
+                drawCircle(color.copy(alpha = 0.08f), radius = maxR)
+                drawCircle(color.copy(alpha = 0.14f), radius = maxR * (0.55f + 0.45f * eased))
+                drawCircle(color.copy(alpha = 0.22f), radius = maxR * (0.42f + 0.33f * eased))
+                drawCircle(color.copy(alpha = 0.9f), radius = maxR * 0.36f, style = Stroke(3.dp.toPx()))
+            }
             center()
-            Text(
-                if (phase < 0.5f) "Breathe in" else "Breathe out",
-                style = MaterialTheme.typography.labelLarge,
-                color = color,
-            )
         }
+        Text(
+            if (phase < 0.5f) "Breathe in…" else "Breathe out…",
+            style = MaterialTheme.typography.titleMedium,
+            color = color,
+        )
     }
 }
 
