@@ -88,6 +88,16 @@ fun BarChart(
     val over = MaterialTheme.colorScheme.error
     val goalColor = MaterialTheme.colorScheme.onSurfaceVariant
     val max = (values.maxOrNull() ?: 0L).coerceAtLeast(goal).coerceAtLeast(1L)
+    if (values.all { it == 0L }) {
+        Box(modifier.fillMaxWidth().height(height), contentAlignment = Alignment.Center) {
+            Text(
+                "Not enough history yet. Check back in a few days.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        return
+    }
     Column(modifier) {
         Canvas(Modifier.fillMaxWidth().height(height)) {
             if (values.isEmpty()) return@Canvas

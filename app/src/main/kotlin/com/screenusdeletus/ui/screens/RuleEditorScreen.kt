@@ -153,7 +153,7 @@ fun RuleEditorScreen(id: String, onDone: () -> Unit) {
 
         SectionCard("Daily limit") {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(if (hasLimit) formatDuration(limitMinutes.toLong() * 60_000).let { if (limitMinutes == 0f) "Always blocked" else it } else "No daily limit", Modifier.weight(1f))
+                Text(if (hasLimit) "Limit daily use" else "No daily limit (focus hours only)", Modifier.weight(1f))
                 Switch(hasLimit, { hasLimit = it })
             }
             if (hasLimit) ValueSlider("Allowed per day", if (limitMinutes == 0f) "Blocked" else formatDuration(limitMinutes.toLong() * 60_000), limitMinutes, { limitMinutes = it }, 0f..240f, step = 5f)

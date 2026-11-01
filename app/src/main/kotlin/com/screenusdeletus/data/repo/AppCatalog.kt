@@ -48,7 +48,8 @@ class AppCatalog(
     }
 
     fun label(pkg: String): String = labelCache.getOrPut(pkg) {
-        runCatching { pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString() }.getOrNull() ?: prettyName(pkg)
+        runCatching { pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString() }.getOrNull()
+            ?.takeIf { it.isNotBlank() && it != pkg } ?: prettyName(pkg)
     }
 
     fun icon(pkg: String): Drawable? = runCatching { pm.getApplicationIcon(pkg) }.getOrNull()

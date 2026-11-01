@@ -111,7 +111,8 @@ object InsightsEngine {
         val out = mutableListOf<String>()
         val days = input.dailyTotalsMs
 
-        if (input.hourlyMsLast7Days.size == 24 && input.hourlyMsLast7Days.sum() > 0) {
+        // Percent-based observations are meaningless on a few minutes of data.
+        if (input.hourlyMsLast7Days.size == 24 && input.hourlyMsLast7Days.sum() >= MIN_DATA_MS) {
             val peak = input.hourlyMsLast7Days.indices.maxBy { input.hourlyMsLast7Days[it] }
             val share = input.hourlyMsLast7Days[peak].toDouble() / input.hourlyMsLast7Days.sum()
             if (share > 0.12) {
@@ -165,7 +166,7 @@ object InsightsEngine {
 
         input.topApps.firstOrNull()?.let { (pkg, ms) ->
             val total = input.topApps.sumOf { it.second }
-            if (total > 0 && ms.toDouble() / total > 0.4) {
+            if (total >= MIN_DATA_MS && ms.toDouble() / total > 0.4) {
                 out += "${appLabel(pkg)} accounts for ${(ms * 100 / total)}% of your app time."
             }
         }
@@ -174,6 +175,8 @@ object InsightsEngine {
         }
         return out
     }
+
+    private const val MIN_DATA_MS = 30 * 60 * 1000L
 
     private fun triggerAdvice(trigger: String): String = when (trigger.lowercase()) {
         "bored" -> "Keep a short list of offline things you enjoy."

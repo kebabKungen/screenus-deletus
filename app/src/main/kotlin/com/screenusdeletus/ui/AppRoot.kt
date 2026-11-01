@@ -109,10 +109,11 @@ private fun MainNav(pendingRoute: String?, onRouteConsumed: () -> Unit) {
                     NavigationBarItem(
                         selected = current == tab.route,
                         onClick = {
+                            // Always land on the tab's own screen (e.g. More, not the Guardian page
+                            // that was last open under it).
                             nav.navigate(tab.route) {
-                                popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                                popUpTo(nav.graph.findStartDestination().id)
                                 launchSingleTop = true
-                                restoreState = true
                             }
                         },
                         icon = { Icon(tab.icon, contentDescription = null) },

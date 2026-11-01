@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -62,7 +63,11 @@ fun SecurityScreen() {
             ProtectionLevel.RESTRICTED -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
             ProtectionLevel.LOCKDOWN -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
         }
-        androidx.compose.material3.Surface(shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp), color = panelBg) {
+        androidx.compose.material3.Surface(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+            color = panelBg,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
             Row(Modifier.padding(20.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 androidx.compose.material3.Icon(
                     if (s.level == ProtectionLevel.NORMAL && s.allProtectionsOn) Icons.Filled.VerifiedUser else Icons.Filled.GppMaybe,
@@ -79,24 +84,17 @@ fun SecurityScreen() {
                         },
                         style = MaterialTheme.typography.headlineSmall, color = panelFg,
                     )
-                    Text("Tamper score ${s.tamperScore} in the last 24 h", style = MaterialTheme.typography.bodyMedium, color = panelFg)
+                    Text(
+                        when (s.level) {
+                            ProtectionLevel.NORMAL -> if (s.allProtectionsOn) "Every rule is enforced as you set it." else "A required permission is off."
+                            ProtectionLevel.RESTRICTED -> "Every rule is one step stricter."
+                            ProtectionLevel.LOCKDOWN -> "Every rule is a hard block."
+                        } + (s.levelUntil?.let { " Until ${Time.formatDateTime(it)}." } ?: ""),
+                        style = MaterialTheme.typography.bodyMedium, color = panelFg,
+                    )
+                    Text("Tamper score ${s.tamperScore} in the last 24 h", style = MaterialTheme.typography.bodySmall, color = panelFg.copy(alpha = 0.8f))
                 }
             }
-        }
-
-        SectionCard("Protection level") {
-            Text(
-                when (s.level) {
-                    ProtectionLevel.NORMAL -> "Normal"
-                    ProtectionLevel.RESTRICTED -> "Restricted: every rule is one step stricter"
-                    ProtectionLevel.LOCKDOWN -> "Lockdown: every rule is a hard block"
-                },
-                style = MaterialTheme.typography.titleMedium,
-                color = if (s.level == ProtectionLevel.NORMAL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-            )
-            s.levelUntil?.let { Text("Until ${Time.formatDateTime(it)}") }
-            if (s.level != ProtectionLevel.NORMAL && s.levelUntil == null) Text("Until all protections below are back on.")
-            Text("Tamper score (24h): ${s.tamperScore}", style = MaterialTheme.typography.bodySmall)
         }
 
         SectionCard("Protections") {
