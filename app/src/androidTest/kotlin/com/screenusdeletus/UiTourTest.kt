@@ -21,6 +21,8 @@ import com.screenusdeletus.ui.MainActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.FixMethodOrder
+import org.junit.runners.MethodSorters
 import java.io.File
 
 /**
@@ -29,6 +31,7 @@ import java.io.File
  */
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class UiTourTest {
 
     @get:Rule
@@ -84,7 +87,7 @@ class UiTourTest {
     }
 
     @Test
-    fun tour() {
+    fun a_tour() {
         // ---- onboarding ----
         rule.waitUntilAtLeastOneExists(hasText("Screenus Deletus"), 15_000)
         shot("01_welcome")
@@ -150,5 +153,17 @@ class UiTourTest {
             Thread.sleep(1_500)
             shot("21_interstitial")
         }
+    }
+
+    /** Runs after the tour on the same install: stats open freely, settings need the PIN. */
+    @Test
+    fun b_settingsAreLocked() {
+        rule.waitUntilAtLeastOneExists(hasText("Top apps today"), 30_000)
+        click("More")
+        rule.waitUntilAtLeastOneExists(hasText("Settings are locked"), 10_000)
+        "2468".forEach { click(it.toString()) }
+        shot("22_settings_locked")
+        click("Unlock")
+        rule.waitUntilAtLeastOneExists(hasText("Commitment pledge"), 15_000)
     }
 }

@@ -57,4 +57,4 @@ echo "===== APP WARNINGS ====="
 grep -E " [EW] (SecurePrefs|Enforcement|GuardService|Guardian|AndroidRuntime|System.err)" logcat.txt | head -150 || true
 echo "===== INSTRUMENT RESULT ====="
 grep -E "OK \(|FAILURES|Tests run|INSTRUMENTATION_|Error|at com.screenusdeletus" instrument.txt | head -80 || true
-test "$(grep -c "OK (1 test)" instrument.txt)" -eq 2
+test "$(grep -c "OK (2 tests)" instrument.txt)" -eq 2
